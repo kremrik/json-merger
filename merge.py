@@ -15,20 +15,24 @@ def merge(raw: dict, master: dict, type_check: Callable = lambda x, y: x) -> dic
         return master
 
     output = {}
+
     raw_keys = set(raw)
     master_keys = set(master)
     missing_from_master = raw_keys - master_keys
     missing_from_raw = master_keys - raw_keys
     intersection = master_keys & raw_keys
 
-    # three loops is a lot of repeated code, can't figure out a simpler way yet
-    for key in missing_from_raw:
+    missing_master = {k: raw[k] for k in missing_from_master}
+    missing_raw = {k: master[k] for k in missing_from_raw}
+    check_types = {k: raw[k] for k in intersection}
+
+    for key, value in missing_raw.items():
         output[key] = None
 
-    for key in missing_from_master:
-        output[key] = raw[key]
+    for key, value in missing_master.items():
+        output[key] = value
 
-    for key in intersection:
-        output[key] = type_check(raw[key], master[key])
+    for key, value in check_types.items():
+        output[key] = type_check(value, master[key])
 
     return output

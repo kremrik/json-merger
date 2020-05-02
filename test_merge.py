@@ -1,5 +1,6 @@
 from merge import merge
 import unittest
+from unittest import skip
 
 
 class test_merge(unittest.TestCase):
@@ -37,6 +38,46 @@ class test_merge(unittest.TestCase):
         raw = {"foo": 1, "bar": 2}
         master = {"foo": int}
         gold = {"foo": 1, "bar": 2}
+        output = merge(raw, master)
+        self.assertEqual(gold, output)
+
+    @skip("")
+    def test_nesting_same_schema(self):
+        raw = {
+            "foo": {
+                "bar": 1
+            }
+        }
+        master = {
+            "foo": {
+                "bar": int
+            }
+        }
+        gold = {
+            "foo": {
+                "bar": 1
+            }
+        }
+        output = merge(raw, master)
+        self.assertEqual(gold, output)
+
+    def test_nesting_type_mismatch(self):
+        raw = {
+            "foo": {
+                "bar": 1
+            }
+        }
+        master = {
+            "foo": {
+                "bar": str
+            }
+        }
+        gold = {
+            "foo": {
+                "bar": "1"
+            }
+        }
+        type_check = lambda x, y: y(x)
         output = merge(raw, master)
         self.assertEqual(gold, output)
 
