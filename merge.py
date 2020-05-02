@@ -1,36 +1,34 @@
-def merge(raw: dict, master: dict) -> dict:
+from typing import Callable
+
+
+def merge(raw: dict, master: dict, type_check: Callable = lambda x, y: x) -> dict:
     """
     raw = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5}
     master = {"two": int, "three": int, "four": int, "five": int, "six": int}
-    2 µs ± 24.1 ns per loop (mean ± std. dev. of 7 runs, 100000 loops each)
+
+    # 2 µs ± 24.1 ns per loop (mean ± std. dev. of 7 runs, 100000 loops each)
+    1.42 µs ± 4.29 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
+
+    30% reduction in execution time
     """
     if not master:
         return master
 
     output = {}
-    raw_keys = raw.keys()
-    master_keys = master.keys()
+    raw_keys = set(raw)
+    master_keys = set(master)
+    missing_from_master = raw_keys - master_keys
+    missing_from_raw = master_keys - raw_keys
+    intersection = master_keys & raw_keys
 
+    # three loops is a lot of repeated code, can't figure out a simpler way yet
+    for key in missing_from_raw:
+        output[key] = None
 
-    for m_key, m_type in master.items():
-        if m_key in raw.keys():
-            if isinstance(raw[m_key], m_type):
-                msg = f"{m_key} is a valid key"
-                output[m_key] = raw[m_key]
-            else:
-                r_val = raw[m_key]
-                r_type = type(r_val)
-                msg = f"'{r_val}' was cast to {m_type}"
-                output[m_key] = m_type(r_val)
-        else:
-            msg = f"Missing key '{m_key}'"
-            output[m_key] = None
-        # print(msg)
+    for key in missing_from_master:
+        output[key] = raw[key]
 
-    for r_key, r_val in raw.items():
-        if r_key not in master.keys():
-            msg = f"Key '{r_key}' was not in master schema"
-            output[r_key] = r_val
-        # print(msg)
+    for key in intersection:
+        output[key] = type_check(raw[key], master[key])
 
     return output

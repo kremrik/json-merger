@@ -21,8 +21,9 @@ class test_merge(unittest.TestCase):
     def test_type_mismatch(self):
         raw = {"foo": 1}
         master = {"foo": str}
+        type_check = lambda x, y: y(x)
         gold = {"foo": "1"}
-        output = merge(raw, master)
+        output = merge(raw, master, type_check)
         self.assertEqual(gold, output)
 
     def test_missing_key(self):
