@@ -14,35 +14,26 @@ class test_merge(unittest.TestCase):
 
     def test_same_schema(self):
         raw = {"foo": "bar"}
-        master = {"foo": str}
+        master = {"foo": None}
         gold = {"foo": "bar"}
         output = merge(raw, master)
         self.assertEqual(gold, output)
 
-    def test_type_mismatch(self):
-        raw = {"foo": 1}
-        master = {"foo": str}
-        type_check = lambda x, y: y(x)
-        gold = {"foo": "1"}
-        output = merge(raw, master, type_check)
-        self.assertEqual(gold, output)
-
     def test_missing_key(self):
         raw = {"foo": 1}
-        master = {"foo": int, "bar": int}
+        master = {"foo": None, "bar": None}
         gold = {"foo": 1, "bar": None}
         output = merge(raw, master)
         self.assertEqual(gold, output)
 
     def test_extra_key(self):
         raw = {"foo": 1, "bar": 2}
-        master = {"foo": int}
+        master = {"foo": None}
         gold = {"foo": 1, "bar": 2}
         output = merge(raw, master)
         self.assertEqual(gold, output)
 
-    @skip("")
-    def test_nesting_same_schema(self):
+    def test_nested_master_has_more(self):
         raw = {
             "foo": {
                 "bar": 1
@@ -50,35 +41,77 @@ class test_merge(unittest.TestCase):
         }
         master = {
             "foo": {
-                "bar": int
+                "bar": None,
+                "baz": None
             }
         }
         gold = {
             "foo": {
-                "bar": 1
+                "bar": 1,
+                "baz": None
             }
         }
         output = merge(raw, master)
         self.assertEqual(gold, output)
 
-    def test_nesting_type_mismatch(self):
+    def test_nested_master_has_fewer(self):
         raw = {
             "foo": {
-                "bar": 1
+                "bar": 1,
+                "baz": 2
             }
         }
         master = {
             "foo": {
-                "bar": str
+                "bar": None
             }
         }
         gold = {
             "foo": {
-                "bar": "1"
+                "bar": 1,
+                "baz": 2
             }
         }
-        type_check = lambda x, y: y(x)
         output = merge(raw, master)
+        self.assertEqual(gold, output)
+
+    def test_two_completely_different_schemas(self):
+        dict1 = {
+            "key1": [1, 2, 3],
+            "key2": 42,
+            "key3": {
+                "foo": "bar"
+            }
+        }
+        dict2 = {
+            "one": 1,
+            "two": 2,
+            "three": {
+                "test": {
+                    "hello": "world"
+                }
+            },
+            "key3": {
+                "foo": "bar",
+                "baz": "dur"
+            }
+        }
+        gold = {
+            "key1": [1, 2, 3],
+            "key2": 42,
+            "key3": {
+                "foo": "bar",
+                "baz": "dur"
+            },
+            "one": 1,
+            "two": 2,
+            "three": {
+                "test": {
+                    "hello": "world"
+                }
+            }
+        }
+        output = merge(dict1, dict2)
         self.assertEqual(gold, output)
 
 
