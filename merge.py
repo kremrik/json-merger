@@ -1,23 +1,23 @@
 from typing import Any, Callable
 
 
-def merge(raw: dict, master: dict) -> dict:
+def merge(dict1: dict, dict2: dict) -> dict:
     output = {}
 
-    # adds keys from `master` if they do not exist in `raw`
-    intersection = {**master, **raw}
+    # adds keys from `dict2` if they do not exist in `dict1`
+    intersection = {**dict2, **dict1}
 
     for k_intersect, v_intersect in intersection.items():
-        if k_intersect not in raw:
-            v_master = master[k_intersect]
-            output[k_intersect] = v_master
+        if k_intersect not in dict1:
+            v_dict2 = dict2[k_intersect]
+            output[k_intersect] = v_dict2
 
-        elif k_intersect not in master:
+        elif k_intersect not in dict2:
             output[k_intersect] = v_intersect
 
         elif isinstance(v_intersect, dict):
-            v_master = master[k_intersect]
-            output[k_intersect] = merge(v_intersect, v_master)
+            v_dict2 = dict2[k_intersect]
+            output[k_intersect] = merge(v_intersect, v_dict2)
 
         else:
             output[k_intersect] = v_intersect
