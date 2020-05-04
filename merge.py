@@ -1,6 +1,3 @@
-from typing import Any, Callable
-
-
 def merge(dict1: dict, dict2: dict) -> dict:
     output = {}
 
