@@ -1,2 +1,3 @@
 [run]
+source = merge
 omit = test_merge.py

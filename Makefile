@@ -2,6 +2,7 @@
 clean:
 	rm -rf htmlcov
 	rm -f .coverage
+	rm -f coverage.xml
 	rm -rf __pycache__
 	rm -rf .mypy_cache
 
