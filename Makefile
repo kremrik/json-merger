@@ -21,7 +21,7 @@ type-check:
 	@mypy merge/merge.py
 
 .PHONY: cov
-coverage:
+cov:
 	@coverage run -m unittest tests/test*.py
 
 .PHONY: cov-xml
@@ -29,6 +29,6 @@ cov-xml: cov
 	@coverage xml merge/merge.py
 
 .PHONY: cov-report
-coverage: coverage
+cov-report: cov
 	@coverage html
 	@python3 -m http.server 8000 --directory htmlcov/
