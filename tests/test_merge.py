@@ -1,4 +1,4 @@
-from merge import merge, merge_map, get_keys, get_values
+from merge.merge import merge, merge_map, get_keys, get_values
 import unittest
 from unittest import skip
 from functools import reduce

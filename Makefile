@@ -4,6 +4,7 @@ clean:
 	rm -f .coverage
 	rm -f coverage.xml
 	rm -rf __pycache__
+	rm -rf merge/__pycache__
 	rm -rf .mypy_cache
 
 .PHONY: set-hooks
@@ -12,7 +13,7 @@ set-hooks:
 
 .PHONY: test
 test:
-	@python3 -m unittest -v
+	@python3 -m unittest tests/test*.py -v
 
 .PHONY: type-check
 type-check:
