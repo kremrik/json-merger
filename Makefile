@@ -6,6 +6,10 @@ clean:
 	rm -rf __pycache__
 	rm -rf .mypy_cache
 
+.PHONY: set-hooks
+set-hooks:
+	@git config core.hooksPath .githooks
+
 .PHONY: test
 test:
 	@python3 -m unittest -v
