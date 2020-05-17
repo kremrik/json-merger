@@ -18,9 +18,17 @@ test:
 .PHONY: type-check
 type-check:
 	# requires mypy module
-	@mypy merge.py
+	@mypy merge/merge.py
 
-.PHONY: coverage
-coverage: test
+.PHONY: cov
+coverage:
+	@coverage run -m unittest tests/test*.py
+
+.PHONY: cov-xml
+cov-xml: cov
+	@coverage xml merge/merge.py
+
+.PHONY: cov-report
+coverage: coverage
 	@coverage html
 	@python3 -m http.server 8000 --directory htmlcov/

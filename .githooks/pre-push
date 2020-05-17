@@ -1,6 +1,5 @@
 #!/bin/bash
 
-make test
-coverage xml merge/merge.py
+make cov-xml
 bash <(curl -s https://codecov.io/bash) -t 65bd25f1-60c7-415b-b825-1356e9f012d6
 make clean
