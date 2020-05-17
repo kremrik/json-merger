@@ -1,6 +1,7 @@
 from merge import merge
 import unittest
 from unittest import skip
+from functools import reduce
 
 
 class test_merge(unittest.TestCase):
@@ -112,6 +113,37 @@ class test_merge(unittest.TestCase):
             }
         }
         output = merge(dict1, dict2)
+        self.assertEqual(gold, output)
+
+    def test_merge_array_strategy_default(self):
+        dict1 = {
+            "foo": [1, 2]
+        }
+        dict2 = {
+            "foo": [3, 4]
+        }
+        gold = {
+            "foo": [1, 2]
+        }
+
+        output = merge(dict1, dict2)
+        self.assertEqual(gold, output)
+
+    def test_merge_array_strategy_custom(self):
+        dict1 = {
+            "foo": [1, 2]
+        }
+        dict2 = {
+            "foo": [3, 4]
+        }
+
+        array_strategy = lambda x, y: reduce(lambda i, j: i+j, [x, y])
+
+        gold = {
+            "foo": [1, 2, 3, 4]
+        }
+
+        output = merge(dict1, dict2, array_strategy=array_strategy)
         self.assertEqual(gold, output)
 
 

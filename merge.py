@@ -1,4 +1,7 @@
-def merge(dict1: dict, dict2: dict) -> dict:
+from typing import Callable
+
+
+def merge(dict1: dict, dict2: dict, array_strategy: Callable = lambda x, y: x) -> dict:
     output = {}
 
     # adds keys from `dict2` if they do not exist in `dict1`
@@ -15,6 +18,10 @@ def merge(dict1: dict, dict2: dict) -> dict:
         elif isinstance(v_intersect, dict):
             v_dict2 = dict2[k_intersect]
             output[k_intersect] = merge(v_intersect, v_dict2)
+
+        elif isinstance(v_intersect, list):
+            v_dict2 = dict2[k_intersect]
+            output[k_intersect] = array_strategy(v_intersect, v_dict2)
 
         else:
             output[k_intersect] = v_intersect
