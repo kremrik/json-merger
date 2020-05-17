@@ -21,7 +21,6 @@ type-check:
 	@mypy merge.py
 
 .PHONY: coverage
-coverage:
-	@coverage run -m unittest test_merge.py
+coverage: test
 	@coverage html
 	@python3 -m http.server 8000 --directory htmlcov/
