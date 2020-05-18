@@ -1,28 +1,21 @@
-from functools import partial, reduce
+from functools import partial
 from typing import Any, Callable, Optional, Sequence, Tuple
-
-
-def list_default(list1: list, list2: list) -> list:
-    # return reduce(lambda l1, l2: l1 + l2, [list1, list2])
-    return list1
-
-
-def dict_default(dict1: dict, dict2: dict, list_strategy: Callable) -> dict:
-    return merge(dict1, dict2, dict_strategy=dict_default, list_strategy=list_strategy)
 
 
 def merge(
     dict1: dict, 
     dict2: dict, 
-    dict_strategy: Callable = dict_default,
-    list_strategy: Callable = list_default
+    dict_strategy: Callable = None,
+    list_strategy: Callable = lambda x, y: x
     ) -> dict:
     """
-    `merge` is a function to recursively, uhh, merge two dictionaries.
+    `merge` is a function to recursively, uhh, merge two dictionaries
     """
-    dict_strategy = partial(dict_default, list_strategy=list_strategy)
+    if not dict_strategy:
+        dict_strategy = partial(merge, list_strategy=list_strategy)
 
     keys = get_keys(dict1, dict2)
+
     return {
         key: merge_map(
             *get_values(dict1, dict2, key), 
