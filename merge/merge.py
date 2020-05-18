@@ -1,24 +1,26 @@
-from functools import partial
+from functools import partial, reduce
 from typing import Any, Callable, Optional, Sequence, Tuple
+
+
+def list_default(list1: list, list2: list) -> list:
+    # return reduce(lambda l1, l2: l1 + l2, [list1, list2])
+    return list1
+
+
+def dict_default(dict1: dict, dict2: dict, list_strategy: Callable) -> dict:
+    return merge(dict1, dict2, dict_strategy=dict_default, list_strategy=list_strategy)
 
 
 def merge(
     dict1: dict, 
     dict2: dict, 
-    dict_strategy: Callable = lambda x, y: x,
-    list_strategy: Callable = lambda x, y: x
+    dict_strategy: Callable = dict_default,
+    list_strategy: Callable = list_default
     ) -> dict:
     """
-    `merge` is a function to recursively, uhh, merge two dictionaries
-
-    By default, `merge` operates like the expression ``{**dict1, **dict2}``, 
-    but when supplied functions for `dict_strategy` and `list_strategy` it 
-    is capable of merging any Python dict in any way imaginable. You can 
-    choose from some predefined functions from the `strategies` module to 
-    get started quickly, or roll your own for even more fun. 
-
-    TODO: add `strategies` module
+    `merge` is a function to recursively, uhh, merge two dictionaries.
     """
+    dict_strategy = partial(dict_default, list_strategy=list_strategy)
 
     keys = get_keys(dict1, dict2)
     return {

@@ -48,7 +48,8 @@ class test_merge(unittest.TestCase):
         }
         gold = {
             "foo": {
-                "bar": 1
+                "bar": 1,
+                "baz": None
             }
         }
         output = merge(raw, master)
