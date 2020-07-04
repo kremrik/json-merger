@@ -1,4 +1,4 @@
-from merge.merge import merge, merge_map, get_keys, get_values
+from merge.merge import merge, get_keys, get_values
 import unittest
 from unittest import skip
 from functools import reduce
@@ -33,6 +33,24 @@ class test_merge(unittest.TestCase):
         gold = {"foo": 1, "bar": 2}
         output = merge(raw, master)
         self.assertEqual(gold, output)
+
+    def test_nested_null_case(self):
+        raw = {
+            "foo": {}
+        }
+        master = {
+            "foo": {
+                "bar": None
+            }
+        }
+        gold = {
+            "foo": {
+                "bar": None
+            }
+        }
+        output = merge(raw, master)
+        self.assertEqual(gold, output)
+
 
     def test_nested_master_has_more_default(self):
         raw = {
@@ -74,10 +92,7 @@ class test_merge(unittest.TestCase):
             }
         }
 
-        def dict_strat(dict1, dict2) -> dict:
-            return merge(dict1, dict2)
-
-        output = merge(raw, master, dict_strategy=dict_strat)
+        output = merge(raw, master)
         self.assertEqual(gold, output)
 
     def test_nested_master_has_fewer(self):
@@ -138,10 +153,20 @@ class test_merge(unittest.TestCase):
             }
         }
 
-        def dict_strat(dict1, dict2) -> dict:
-            return merge(dict1, dict2)
+        output = merge(dict1, dict2)
+        self.assertEqual(gold, output)
 
-        output = merge(dict1, dict2, dict_strategy=dict_strat)
+    def test_merge_null_array(self):
+        dict1 = {
+            "foo": []
+        }
+        dict2 = {
+            "foo": [1, 2, 3]
+        }
+        gold = {
+            "foo": []
+        }
+        output = merge(dict1, dict2)
         self.assertEqual(gold, output)
 
     def test_merge_array_strategy_default(self):
@@ -191,8 +216,6 @@ class test_merge(unittest.TestCase):
         }
 
         list_strategy = lambda x, y: reduce(lambda i, j: i+j, [x, y])
-        def dict_strategy(x, y):
-            return merge(x, y, dict_strategy=dict_strategy, list_strategy=list_strategy)
 
         gold = {
             "foo": {
@@ -203,46 +226,19 @@ class test_merge(unittest.TestCase):
             "pi": 3.14
         }
 
-        output = merge(dict1, dict2, dict_strategy=dict_strategy, list_strategy=list_strategy)
+        output = merge(dict1, dict2, list_strategy=list_strategy)
         self.assertEqual(gold, output)
 
-
-class test_merge_map(unittest.TestCase):
-
-    def test_null_case_left(self):
-        left = 1
-        right = None
-        gold = 1
-        output = merge_map(left, right)
-        self.assertEqual(gold, output)
-
-    def test_null_case_right(self):
-        left = None
-        right = 1
-        gold = 1
-        output = merge_map(left, right)
-        self.assertEqual(gold, output)
-
-    def test_primitive(self):
-        left = 1
-        right = 2
-        gold = 1
-        output = merge_map(left, right)
-        self.assertEqual(gold, output)
-
-    def test_dict_default(self):
-        left = {"foo": "bar"}
-        right = {"baz": "qux"}
-        gold = {"foo": "bar"}
-        output = merge_map(left, right)
-        self.assertEqual(gold, output)
-
-    def test_array_default(self):
-        left = [1, 2]
-        right = [3, 4]
-        gold = [1, 2]
-        output = merge_map(left, right)
-        self.assertEqual(gold, output)
+    def test_list_strategy_arity_error(self):
+        dict1 = {
+            "foo": [1, 2]
+        }
+        dict2 = {
+            "foo": [3, 4]
+        }
+        list_strategy = lambda x: reduce(lambda i, j: i+j, [x])
+        with self.assertRaises(TypeError):
+            merge(dict1, dict2, list_strategy=list_strategy)
 
 
 class test_get_keys(unittest.TestCase):

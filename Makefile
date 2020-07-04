@@ -13,7 +13,7 @@ set-hooks:
 
 .PHONY: test
 test:
-	@python3 -m unittest tests/test*.py -v
+	@python3 -m pytest -v
 
 .PHONY: type-check
 type-check:

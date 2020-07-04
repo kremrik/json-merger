@@ -1,76 +1,78 @@
-from functools import partial
-from typing import Any, Callable, Optional, Sequence, Tuple
+from functools import partial, reduce
+from typing import Any, Callable, Optional, Tuple
+
+
+__all__ = [
+    "merge"
+]
 
 
 def merge(
     dict1: dict, 
     dict2: dict, 
-    dict_strategy: Callable = None,
-    list_strategy: Callable = lambda x, y: x
+    list_strategy: Optional[Callable] = None
     ) -> dict:
     """
     `merge` is a function to recursively, uhh, merge two dictionaries
     """
-    if not dict_strategy:
-        dict_strategy = partial(merge, list_strategy=list_strategy)
+    if not list_strategy:
+        list_strategy = lambda x, y: x
+    else:
+        list_strategy = validate_signature(list_strategy)
 
-    keys = get_keys(dict1, dict2)
+    output = {}
 
-    return {
-        key: merge_map(
-            *get_values(dict1, dict2, key), 
-            dict_strategy, 
-            list_strategy)
-        for key in keys
-    }
+    for key in get_keys(dict1, dict2):
+        left, right = get_values(dict1, dict2, key)
+
+        if key not in dict1:
+            output[key] = dict2[key]
+        elif key not in dict2:
+            output[key] = dict1[key]
+        elif isinstance(left, dict):
+            output[key] = merge(left, right, list_strategy)
+        elif isinstance(left, list):
+            output[key] = list_strategy(left, right)
+        else:
+            output[key] = left
+        
+    return output
 
 
-def get_keys(left: dict, right: dict) -> set:
+def get_keys(
+    left: dict, 
+    right: dict
+) -> set:
     return left.keys() | right.keys()
 
 
-def get_values(left: dict, right: dict, key: str) -> Tuple[Any, Any]:
+def get_values(
+    left: dict, 
+    right: dict, 
+    key: str
+) -> Tuple[Any, Any]:
     return get_value_from_dict(left, key), get_value_from_dict(right, key)
 
 
-def get_value_from_dict(d: dict, key: str) -> Optional[Any]:
+def get_value_from_dict(
+    d: dict, 
+    key: str
+) -> Optional[Any]:
     if key in d:
         return d[key]
     return None
 
 
-def merge_map(
-    left: Any, 
-    right: Any, 
-    dict_strategy: Callable = lambda x, y: x, 
-    list_strategy: Callable = lambda x, y: x
-    ):
+def validate_signature(
+    fnc: Callable
+) -> Callable:
+    from inspect import getsource, signature
 
-    if not (left and right):
-        return first(
-            list(
-                filter(lambda x: bool(x), [left, right])
-            )
-        )
+    sig = signature(fnc)
+    fnc_params = len(sig.parameters)
 
-    if is_dict(left):
-        return dict_strategy(left, right)
+    if fnc_params != 2:
+        msg = f"The function given takes {fnc_params} parameter(s), but requires 2:\n{getsource(fnc)}"
+        raise TypeError(msg)
 
-    if is_list(left):
-        return list_strategy(left, right)
-    
-    return left
-
-
-def first(obj: Sequence) -> Optional[Any]:
-    if not obj:
-        return None
-    return obj[0]
-
-
-def is_instance_of(value: Any, obj: Any) -> bool:
-    return isinstance(value, obj)
-
-is_dict = partial(is_instance_of, obj=dict)
-
-is_list = partial(is_instance_of, obj=list)
+    return fnc
