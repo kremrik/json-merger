@@ -10,12 +10,14 @@ def merge(
     dict1: dict, 
     dict2: dict, 
     list_strategy: Optional[Callable] = None
-    ) -> dict:
+) -> dict:
     """
     :param dict1:
     :param dict2:
-    :param list_strategy: Optional function for handling lists
+    :param list_strategy:   Optional function for handling lists. If left empty will
+                            default to `lambda x, y: x`, returning the lefthand list
     """
+    
     if not list_strategy:
         list_strategy = lambda x, y: x
     else:
