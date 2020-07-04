@@ -13,7 +13,9 @@ def merge(
     list_strategy: Optional[Callable] = None
     ) -> dict:
     """
-    `merge` is a function to recursively, uhh, merge two dictionaries
+    :param dict1:
+    :param dict2:
+    :param list_strategy: Optional function for handling lists
     """
     if not list_strategy:
         list_strategy = lambda x, y: x
