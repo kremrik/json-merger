@@ -10,6 +10,7 @@ clean:
 .PHONY: set-hooks
 set-hooks:
 	@git config core.hooksPath .githooks
+	@chmod +x .githooks/*
 
 .PHONY: test
 test:
